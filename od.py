@@ -15,8 +15,6 @@ import numpy as np
 from numpy.typing import NDArray
 from typing import Dict, Union, List
 
-# Import local libraries
-import cvlib as cvl
 
 
 window_params = {'capture_window_name':'Input video',
@@ -82,12 +80,21 @@ def segment_object(cap:cv2.VideoCapture, args:argparse)->None:
         bitwise_AND = cv2.bitwise_and(frame, frame, mask=frame_threshold)
 
        
-        cnt, _ = cv2.findContours(frame_threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(frame_threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         
-        x, y, w, h = cv2.boundingRect(cnt)
+        for cnt in contours:
+
+            x, y, w, h = cv2.boundingRect(cnt)
        # print(x,y)
-       # print(x + w, y + h)    
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+       # print(x + w, y + h)  
+            area = cv2.contourArea(cnt)
+            print(area)
+            if area > 18 and area < 75 :
+                
+                cv2.rectangle(frame, (x-10, y-10), (x + w + 10, y + h + 10), (0, 255, 0), 2)
+            
+
+            
        # cv2.drawContours(frame_threshold, cnt, -1 , (0, 255, 0), 2)
 
 
