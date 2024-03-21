@@ -15,81 +15,12 @@ import numpy as np
 from numpy.typing import NDArray
 from typing import Dict, Union, List
 
+# Import local libraries
+import cvlib as cvl
 
-# Define and initialise global variables
-HSV_params = {'low_H': 0, 
-              'high_H': 180,
-              'low_S': 0,
-              'high_S': 255,
-              'low_V': 0,
-              'high_V': 255
-            }
 
 window_params = {'capture_window_name':'Input video',
                  'detection_window_name':'Detected object'}
-
-text_params = {'low_H_text': 'Low H',
-               'low_S_text': 'Low_S',
-               'low_V_text': 'Low V',
-               'high_H_text': 'High H',
-               'high_S_text': 'High S',
-               'high_V_text': 'High V'}
-
-
-
-def on_low_H_thresh_trackbar(val:np.int_)->None:
-    global HSV_params
-    HSV_params['low_H'] = val
-    HSV_params['low_H'] = min(HSV_params['high_H']-1, HSV_params['low_H'])
-    cv2.setTrackbarPos(text_params['low_H_text'], 
-                       window_params['detection_window_name'], 
-                       HSV_params['low_H'])
-
-
-def on_high_H_thresh_trackbar(val:np.int_)->None:
-    global HSV_params
-    HSV_params['high_H'] = val
-    HSV_params['high_H'] = max(HSV_params['high_H'], HSV_params['low_H']+1)
-    cv2.setTrackbarPos(text_params['high_H_text'], 
-                       window_params['detection_window_name'], 
-                       HSV_params['high_H'])
-
-
-def on_low_S_thresh_trackbar(val:np.int_)->None:
-    global HSV_params
-    HSV_params['low_S'] = val
-    HSV_params['low_S'] = min(HSV_params['high_S']-1, HSV_params['low_S'])
-    cv2.setTrackbarPos(text_params['low_S_text'], 
-                       window_params['detection_window_name'], 
-                       HSV_params['low_S'])
-
-
-def on_high_S_thresh_trackbar(val:np.int_)->None:
-    global HSV_params
-    HSV_params['high_S'] = val
-    HSV_params['high_S'] = max(HSV_params['high_S'], HSV_params['low_S'] +1)
-    cv2.setTrackbarPos(text_params['high_S_text'], 
-                       window_params['detection_window_name'], 
-                       HSV_params['high_S'])
-
-
-def on_low_V_thresh_trackbar(val:np.int_)->None:
-    global HSV_params
-    HSV_params['low_V'] = val
-    HSV_params['low_V'] = min(HSV_params['high_V']-1, HSV_params['low_V'])
-    cv2.setTrackbarPos(text_params['low_V_text'], 
-                       window_params['detection_window_name'], 
-                       HSV_params['low_V'])
-
-
-def on_high_V_thresh_trackbar(val:np.int_)->None:
-    global HSV_params
-    HSV_params['high_V'] = val
-    HSV_params['high_V'] = max(HSV_params['high_V'], HSV_params['low_V']+1)
-    cv2.setTrackbarPos(text_params['high_V_text'], 
-                       window_params['detection_window_name'], 
-                       HSV_params['high_V'])
-
 
 def parse_cli_data()->argparse:
     parser = argparse.ArgumentParser(description='Tunning HSV bands for object detection')
@@ -111,45 +42,6 @@ def initialise_camera(args:argparse)->cv2.VideoCapture:
     cap = cv2.VideoCapture(args.video_file)
     
     return cap
-
-def configure_trackbars()->None:
-
-    # Create two new windows for visualisation purposes 
-    cv2.namedWindow(window_params['capture_window_name'])
-    cv2.namedWindow(window_params['detection_window_name'])
-
-    # Configure trackbars for the low and hight HSV values
-    cv2.createTrackbar(text_params['low_H_text'], 
-                       window_params['detection_window_name'] , 
-                       HSV_params['low_H'], 
-                       180, 
-                       on_low_H_thresh_trackbar)
-    cv2.createTrackbar(text_params['high_H_text'], 
-                       window_params['detection_window_name'] , 
-                       HSV_params['high_H'], 
-                       180, 
-                       on_high_H_thresh_trackbar)
-    cv2.createTrackbar(text_params['low_S_text'], 
-                       window_params['detection_window_name'] , 
-                       HSV_params['low_S'], 
-                       255, 
-                       on_low_S_thresh_trackbar)
-    cv2.createTrackbar(text_params['high_S_text'], 
-                       window_params['detection_window_name'] , 
-                       HSV_params['high_S'], 
-                       255, 
-                       on_high_S_thresh_trackbar)
-    cv2.createTrackbar(text_params['low_V_text'], 
-                       window_params['detection_window_name'] , 
-                       HSV_params['low_V'], 
-                       255, 
-                       on_low_V_thresh_trackbar)
-    cv2.createTrackbar(text_params['high_V_text'], 
-                       window_params['detection_window_name'] , 
-                       HSV_params['high_V'], 
-                       255, 
-                       on_high_V_thresh_trackbar)
-
 
 def rescale_frame(frame:NDArray, percentage:np.intc=20)->NDArray:
     
@@ -184,26 +76,35 @@ def segment_object(cap:cv2.VideoCapture, args:argparse)->None:
 
         # Apply a threshold to the HSV image
         frame_threshold = cv2.inRange(frame_HSV, 
-                                      (HSV_params['low_H'], 
-                                       HSV_params['low_S'], 
-                                       HSV_params['low_V']), 
-                                      (HSV_params['high_H'], 
-                                       HSV_params['high_S'], 
-                                       HSV_params['high_V']))
+                                      (66, 0, 33),(180, 255, 255))
 
         # Filter out the grassy region from current frame, but keep the moving object 
         bitwise_AND = cv2.bitwise_and(frame, frame, mask=frame_threshold)
 
+       
+        cnt, _ = cv2.findContours(frame_threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        
+        x, y, w, h = cv2.boundingRect(cnt)
+       # print(x,y)
+       # print(x + w, y + h)    
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
+       # cv2.drawContours(frame_threshold, cnt, -1 , (0, 255, 0), 2)
+
+
         # Visualise both the input video and the object detection windows
         cv2.imshow(window_params['capture_window_name'], frame)
         cv2.imshow(window_params['detection_window_name'], bitwise_AND)
+        cv2.imshow('rect',frame_threshold)
+
+        
+        
 
         # The program finishes if the key 'q' is pressed
         key = cv2.waitKey(5)
         if key == ord('q') or key == 27:
             print("Programm finished!")
             break
-
+                
 
 def close_windows(cap:cv2.VideoCapture)->None:
     
@@ -220,13 +121,13 @@ def run_pipeline(args:argparse)->None:
     cap = initialise_camera(args)
 
     # Configure trackbars for the lowest and highest HSV values
-    configure_trackbars()
+   # configure_trackbars()
 
     # Process video
-    segment_object(cap, args)
+    frame, bitwise_AND = segment_object(cap, args)
 
     # Close all open windows
-    close_windows(cap)
+    close_windows()
 
 
 
