@@ -15,9 +15,6 @@ import numpy as np
 from numpy.typing import NDArray
 from typing import Dict, Union, List
 
-# Import local libraries
-import cvlib as cvl
-
 
 window_params = {'capture_window_name':'Input video',
                  'detection_window_name':'Detected object'}
@@ -80,15 +77,15 @@ def segment_object(cap:cv2.VideoCapture, args:argparse)->None:
 
         # Filter out the grassy region from current frame, but keep the moving object 
         bitwise_AND = cv2.bitwise_and(frame, frame, mask=frame_threshold)
+    
+        # Find the contours of the object
+        cnts, _ = cv2.findContours(frame_threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-       
-        cnt, _ = cv2.findContours(frame_threshold, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        
-        x, y, w, h = cv2.boundingRect(cnt)
-       # print(x,y)
-       # print(x + w, y + h)    
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
-       # cv2.drawContours(frame_threshold, cnt, -1 , (0, 255, 0), 2)
+        for cnt in cnts:
+            # Calculate the bounding rectangle for each contour
+            x, y, w, h = cv2.boundingRect(cnt)
+            # Draw the rectangle on the frame
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
 
         # Visualise both the input video and the object detection windows
@@ -124,7 +121,7 @@ def run_pipeline(args:argparse)->None:
    # configure_trackbars()
 
     # Process video
-    frame, bitwise_AND = segment_object(cap, args)
+    segment_object(cap, args)
 
     # Close all open windows
     close_windows()
