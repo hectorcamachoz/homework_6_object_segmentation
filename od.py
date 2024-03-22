@@ -16,7 +16,7 @@ from numpy.typing import NDArray
 from typing import Dict, Union, List
 
 # Import local libraries
-import cvlib as cvl
+#import cvlib as cvl
 
 
 window_params = {'capture_window_name':'Input video',
@@ -76,7 +76,7 @@ def segment_object(cap:cv2.VideoCapture, args:argparse)->None:
 
         # Apply a threshold to the HSV image
         frame_threshold = cv2.inRange(frame_HSV, 
-                                      (66, 0, 33),(180, 255, 255))
+                                      (80, 0, 33),(180, 255, 255))
 
         # Filter out the grassy region from current frame, but keep the moving object 
         bitwise_AND = cv2.bitwise_and(frame, frame, mask=frame_threshold)
