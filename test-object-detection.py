@@ -13,13 +13,19 @@ import cv2
 import argparse
 import numpy as np
 from numpy.typing import NDArray
-from od import parse_cli_data
+
+#local libraries
+import od
 
 
 # Pipeline function
 def run_pipeline():
-    parse_cli_data()
+    cap = od.initialise_camera(args)
+    od.segment_object(cap, args)
+    od.close_windows(cap)
+
 
 if __name__ == "__main__":
     # Run the pipeline
+    args = od.parse_cli_data()
     run_pipeline()
