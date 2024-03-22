@@ -23,6 +23,12 @@ window_params = {'capture_window_name':'Input video',
                  'detection_window_name':'Detected object'}
 
 def parse_cli_data()->argparse:
+    """
+    This function parses the command line arguments
+
+    Returns:
+        argparse: The command line arguments
+    """
     parser = argparse.ArgumentParser(description='Tunning HSV bands for object detection')
     parser.add_argument('--video_file', 
                         type=str, 
@@ -37,14 +43,31 @@ def parse_cli_data()->argparse:
 
 
 def initialise_camera(args:argparse)->cv2.VideoCapture:
+    """
+    This function initialises the camera to capture the video
     
+    Args:
+        args (argparse): The command line arguments
+
+    Returns:
+        cv2.VideoCapture: The video capture object
+    """
     # Create a video capture object
     cap = cv2.VideoCapture(args.video_file)
     
     return cap
 
 def rescale_frame(frame:NDArray, percentage:np.intc=20)->NDArray:
-    
+    """
+    This function rescales the current frame
+
+    Args:
+        frame (NDArray): The current frame
+        percentage (np.intc): The percentage to rescale the frame
+
+    Returns:
+        NDArray: The rescaled frame
+    """
     # Resize current frame
     width = int(frame.shape[1] * percentage / 100)
     height = int(frame.shape[0] * percentage / 100)
@@ -53,6 +76,14 @@ def rescale_frame(frame:NDArray, percentage:np.intc=20)->NDArray:
 
 
 def segment_object(cap:cv2.VideoCapture, args:argparse)->None:
+    """
+    This function segments the object in the video
+
+    Args:
+        cap (cv2.VideoCapture): The video capture object
+        args (argparse): The command line arguments
+
+    """
     # Main loop
     x_center_old = 0
     y_center_old = 0
@@ -70,7 +101,7 @@ def segment_object(cap:cv2.VideoCapture, args:argparse)->None:
 
         # Apply a threshold to the HSV image
         frame_threshold = cv2.inRange(frame_HSV, 
-                                      (66, 0, 33),(180, 255, 255))
+                                      (66, 80, 33),(180, 255, 255))
 
         # Filter out the grassy region from current frame, but keep the moving object 
         bitwise_AND = cv2.bitwise_and(frame, frame, mask=frame_threshold)
@@ -129,27 +160,6 @@ def close_windows(cap:cv2.VideoCapture)->None:
     # Destroy 'VideoCapture' object
     cap.release()
 
-
-def run_pipeline(args:argparse)->None:
-
-    # Initialise video capture
-    cap = initialise_camera(args)
-
-    # Process video
-    segment_object(cap, args)
-    
-    # Close all open windows
-    close_windows(cap)
-
-
-
-if __name__=='__main__':
-
-    # Get data from CLI
-    args = parse_cli_data()
-
-    # Run pipeline
-    run_pipeline(args)
             
 
 

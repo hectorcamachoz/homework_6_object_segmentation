@@ -13,12 +13,22 @@ import cv2
 import argparse
 import numpy as np
 from numpy.typing import NDArray
-from od import parse_cli_data
+from od import parse_cli_data, initialise_camera, rescale_frame, segment_object, close_windows
 
 
 # Pipeline function
 def run_pipeline():
-    parse_cli_data()
+    # Parse the command line arguments
+    args = parse_cli_data()
+
+    # Initialise video capture
+    cap = initialise_camera(args)
+
+    # Process video
+    segment_object(cap, args)
+    
+    # Close all open windows
+    close_windows(cap)
 
 if __name__ == "__main__":
     # Run the pipeline
