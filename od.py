@@ -160,7 +160,28 @@ def close_windows(cap:cv2.VideoCapture)->None:
     # Destroy 'VideoCapture' object
     cap.release()
 
-            
+"""
+def run_pipeline(args:argparse)->None:
+
+    # Initialise video capture
+    cap = initialise_camera(args)
+
+    # Process video
+    segment_object(cap, args)
+    
+    # Close all open windows
+    close_windows(cap)
+
+
+
+if __name__=='__main__':
+
+    # Get data from CLI
+    args = parse_cli_data()
+
+    # Run pipeline
+    run_pipeline(args)
+"""            
 
 
 

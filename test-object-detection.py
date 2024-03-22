@@ -18,9 +18,6 @@ from od import parse_cli_data, initialise_camera, rescale_frame, segment_object,
 
 # Pipeline function
 def run_pipeline():
-    # Parse the command line arguments
-    args = parse_cli_data()
-
     # Initialise video capture
     cap = initialise_camera(args)
 
@@ -32,4 +29,5 @@ def run_pipeline():
 
 if __name__ == "__main__":
     # Run the pipeline
+    args = parse_cli_data()
     run_pipeline()
