@@ -15,9 +15,6 @@ import numpy as np
 from numpy.typing import NDArray
 from typing import Dict, Union, List
 
-# Import local libraries
-import cvlib as cvl
-
 
 window_params = {'capture_window_name':'Input video',
                  'detection_window_name':'Detected object'}
