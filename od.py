@@ -96,21 +96,20 @@ def segment_object(cap:cv2.VideoCapture, args:argparse)->None:
         fixed_width, fixed_height = 30, 30  # Tamaño fijo para el rectángulo
         x_center, y_center = x + w // 2, y + h // 2
 
-        # Ajusta las coordenadas para centrar el rectángulo fijo sobre el contorno más grande
-        
-
-        
-        # Dibuja el rectángulo fijo
+        # Establece una condicion para evitar que el rectangulo dibujado continue con el contorno que deseamos
         if x_center - 10  < x_center_old < x_center + 10 or x_center_old == 0 and y_center - 10  < y_center_old < y_center + 10 or y_center_old == 0 :
 
+            # Ajusta las coordenadas para centrar el rectángulo fijo sobre el contorno más grande
             x_fixed = max(0, x_center - fixed_width // 2)
             y_fixed = max(0, y_center - fixed_height // 2)
+
+             # Dibuja el rectángulo fijo
             cv2.rectangle(frame, (x_fixed, y_fixed), 
                         (x_fixed + fixed_width, y_fixed + fixed_height), 
                         (0, 255, 0), 2)
             x_center_old = x_center
         
-            
+        # Muestra los videos
         cv2.imshow(window_params['capture_window_name'], frame)
         cv2.imshow(window_params['detection_window_name'], bitwise_AND)
         cv2.imshow('rect', frame_threshold)
